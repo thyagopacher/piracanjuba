@@ -1,0 +1,29 @@
+a:hover { text-decoration: none; }
+a.button:hover { text-decoration: none; }
+
+
+div.imgRecipe a:hover:before {
+  content: "";
+  width: 542px;
+  height: 350px;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+div.imgRecipe a:hover:after {
+  content: "Ver mais";
+  display: block;
+  position: absolute;
+  width: 81px;
+  top: 50%;
+  left: 50%;
+  color: #FFF;
+  font-size: 20px;
+  border: 1px solid #FFF;
+  padding: 10px 40px;
+  border-radius: 30px;
+  margin-left: -100px;
+  margin-top: -20px;
+}

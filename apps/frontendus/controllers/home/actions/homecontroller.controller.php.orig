@@ -1,0 +1,3072 @@
+<<<<<<< HEAD
+<?php
+
+class HomeController extends DefaultController
+{
+    static $hasSaibaMais = false;
+    public $bodyClasses = "home";
+
+    public function index($vars = NULL)
+    {
+        //$this->initProdutoJson($vars);
+        $this->bodyClasses = "home red";
+    }
+
+
+
+
+    public function aPiracanjuba($vars)
+    {
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "apt", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $topo = DestaquesModel::doSelect($criteria);
+        $this->topo = $topo;
+
+        //-----------
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "apc", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = DestaquesModel::doSelect($criteria);
+        $this->conteudo = $conteudo;
+        //-----------
+
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CAT`", "`cnt_categorias`.`CAT_ID`");
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_conteudo`", "`cnt_conteudo`.`CNT_ID`", "`cnt_categorias_conteudos`.`CCL_CNT`");
+        $criteria->add("`cnt_categorias`.`CAT_COR`", "anos", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias`.`CAT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->addGroupBy("`cnt_categorias`.`CAT_ID`");
+
+        $this->timelineYears = CategoriasModel::doSelect($criteria);
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Quem_somos}"
+            ),
+        ),
+            "IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+        $this->bodyClasses = "home red the-piracanjuba";
+    }
+
+
+    public function caminhoDoLeite($vars){
+        $this->layoutVars['semrodape'] = true;
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 14, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_DTA`", date("Y-m-d H:i:s"), FuriousExpressionsDB::MINOR_EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->addAscendingOrder("`cnt_conteudo`.`CNT_DTA`");
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo;
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Caminho_do_Leite}"
+            ),
+        ),
+            //"IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+
+        $this->pageTitle = "{Caminho_do_Leite}";
+
+
+        $this->bodyClasses = "home milkway skroll-content";
+    }
+
+    public function compradeleite($vars){
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 6, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $conteudo = ConteudoModel::doSelect($criteria);
+
+        $this->conteudo = $conteudo;
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{Produtor de leite}",
+                $vars[0][0] => "{Compra de Leite}"
+            ),
+        ),
+            "IMAGE" => APP_JS_PREFIX . "images/_imgMedia.jpg",
+            "TXT" => "{PROGRAMA_DE_APOIO_TECNICO_AO_RPODUTOR_DE_LEITE_PIRACAMJUBA}"
+        );
+        $this->bodyClasses = "home green purchase";
+    }
+
+
+    public function contato($vars = null)
+    {
+        $criteria = new FuriousSelectCriteria();
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto`", "`w11_produto`.`PDT_ID`", "`cnt_destaques`.`DTQ_EDT`");
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto_menu`", "`w11_produto_menu`.`MNU_TIP`", "CONCAT(`cnt_destaques`.`DTQ_TIP`, \"/index\")");
+        $criteria->add("`w11_produto`.`PDT_URL`", $vars[0][0], FuriousExpressionsDB::EQUAL);
+        $criteria->add("`w11_produto`.`PDT_OMN`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "sac", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+
+        $this->sac = $destaques;
+
+
+        $this->heading = array(
+          "BREADCRUMB" => array("LINKS" => array($vars[0][0] => "{FALE_CONOSCO}")),
+          "IMAGE" => APP_JS_PREFIX . "images/_fale.jpg",
+          "TXT" => "Serviço de Atendimento ao Consumidor",
+          "DESC" => "Para dúvidas, sugestões, reclamações ou crítica, a Piracanjuba está a sua inteira disposição. Deixe aqui sua mensagem, sua opinião é muito importante para nós.",
+          "DESC2" => "<small>Telefone para contato</small><br />0800 722 1718"
+        );
+        $this->pageTitle = "{FALE_CONOSCO}";
+
+        $this->subjects = array();
+        $this->to = array();
+
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto`", "`w11_produto`.`PDT_ID`", "`cnt_destaques`.`DTQ_EDT`");
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto_menu`", "`w11_produto_menu`.`MNU_TIP`", "CONCAT(`cnt_destaques`.`DTQ_TIP`, \"/index\")");
+        $criteria->add("`w11_produto`.`PDT_URL`", $vars[0][0], FuriousExpressionsDB::EQUAL);
+        $criteria->add("`w11_produto`.`PDT_OMN`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "ar", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $subjects = DestaquesModel::doSelect($criteria);
+
+        if(!empty($subjects[0])){
+
+            foreach($subjects as $sub){
+              $this->subjects[] = $sub->getDTQTIT();
+              $this->to[] = $sub->getDTQTXT();
+            }
+        }
+
+
+
+
+        if (!empty($_POST)) {
+            $this->errors = array();
+
+
+            if(!empty($_FILES['image']) && !empty($_FILES['image']['tmp_name'])){
+              if(!preg_match("/image/i", $_FILES['image']['type'])){
+                $this->errors["image"] = "<strong>{Image}</strong> {Invalid file format}";
+              }
+            }
+
+
+
+          $bro = new Browser();
+          $bro->setURL("https://www.google.com/recaptcha/api/siteverify");
+
+          $bro->addPOSTData(array("secret" => "6LeuvyUTAAAAANoUQDt1XdvLoJvE2bntCnwDFnu-", "response" => $_POST['g-recaptcha-response'], "remoteip" => ($_SERVER['REMOTE_ADDR'] != "127.0.0.1")?$_SERVER['REMOTE_ADDR']:"179.208.177.216"));
+          $data = json_encode($bro->go());
+
+          $this->fields = array(
+            "area" => "{Area}",
+            "name" => "{Name}",
+            "gender" => "{Gender}",
+            "birth" => "{Birth}",
+            "relationship" => "{Relationship}",
+            "cpf" => "{cpf}",
+            "cellphone" => "{Cellphone}",
+            "phone" => "{Phone}",
+            "email" => "{Email}",
+            "zipcode" => "{Zipcode}",
+            "address" => "{Address}",
+            "number" => "{Number}",
+            "additional" => "{Additional}",
+            "address2" => "{Address2}",
+            "country" => "{Country}",
+            "state" => "{State}",
+            "city" => "{City}",
+            "subject" => "{Subject}",
+            "message" => "{Message}"
+          );
+          $this->values = array();
+          foreach($this->fields as $field => $label){
+            $this->values[$field] = (!empty($_POST[$field]))?$_POST[$field]:"";
+          }
+          $this->obrigatory = array(
+            "area",
+            "name",
+            "gender",
+            "birth",
+            "relationship",
+            "cpf",
+            "cellphone",
+            "phone",
+            "email",
+            "zipcode",
+            "address",
+            "number",
+            "country",
+            "state",
+            "city",
+            "subject",
+            "message"
+          );
+
+
+          foreach($this->obrigatory as $field){
+            if(empty($_POST[$field])){
+              $this->errors[$field] = "<strong>" . $this->fields[$field]  . "</strong> {cant be blank}";
+              continue;
+            }
+            switch($field){
+              case "email":
+                if(!filter_var($_POST[$field], FILTER_VALIDATE_EMAIL)){
+                  $this->errors[$field] = "<strong>".$this->fields[$field]."</strong> {Invalid}";
+                }
+              break;
+              case "cpf":
+                if(!validaCPF($_POST[$field])){
+                  $this->errors[$field] = "<strong>".$this->fields[$field]."</strong> {Invalid}";
+                }
+              break;
+            }
+          }
+
+          // TODO: CHANGE Comparison mode
+          if(!empty($data->success) && count($this->errors) == 0){
+
+            $toSend = $this->to[$_POST[$field]];
+
+            $message = "<p>Você recebeu uma nova mensagem no site: </p>";
+            foreach(array("area", "name", "gender", "birth", "relationship", "cpf", "cellphone", "phone", "email", "zipcode", "address", "number", "additional", "address2", "country", "state", "city", "subject", "message") as $field){
+              if($field == "area"){
+                $message .= "<p>" . $this->fields[$field] . ": " . $this->subjects[$_POST[$field]] . "</p>";
+              } else {
+                $message .= "<p>" . $this->fields[$field] . ": " . $_POST[$field] . "</p>";
+              }
+
+            }
+
+            $translator = FuriousTranslator::init();
+        		$message = $translator->translate($message, "");
+
+
+            $mail = new ActiveMail();
+            if(strpos($toSend, ",") === FALSE){
+              $mail->addAddress("Contato", trim($toSend));
+            } else {
+              foreach(explode(",", $toSend) as $val){
+                $mail->addAddress("Contato", trim($val));
+              }
+            }
+
+            $mail->addSubject("Contato Piracanjuba");
+            $mail->addMessage($message);
+            if(!empty($_FILES['image']['tmp_name']) && empty($_FILES['image']['error']) ){
+              $mail->addAttachment($_FILES['image']['tmp_name'], $_FILES['image']['name']);
+            }
+
+            if(!$mail->sendMail()){
+              $this->errors[] = "{Failed to submit}";
+            } else {
+              $this->success = "{MSG_SENDED}";
+            }
+
+          } else {
+            $this->errors["captcha"] = "<strong>{Invalid Captcha}</strong>";
+          }
+
+
+        }
+
+        $this->bodyClasses = "home red contact";
+
+
+    }
+
+
+    public function dicasdenutricao($vars = null){
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto`", "`w11_produto`.`PDT_ID`", "`cnt_destaques`.`DTQ_EDT`");
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto_menu`", "`w11_produto_menu`.`MNU_TIP`", "CONCAT(`cnt_destaques`.`DTQ_TIP`, \"/index\")");
+        $criteria->add("`w11_produto`.`PDT_URL`", $vars[0][0], FuriousExpressionsDB::EQUAL);
+        $criteria->add("`w11_produto`.`PDT_OMN`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "rec", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_INI`", date("Y-m-d H:i:s"), FuriousExpressionsDB::MINOR_EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_FIM`", date("Y-m-d H:i:s"), FuriousExpressionsDB::GREATER_EQUAL);
+
+        $this->dicas = DestaquesModel::doSelect($criteria);;
+
+        $criteria = new FuriousSelectCriteria();
+        if(!empty($_REQUEST['titulo_dica'])){
+            $titulo = $_REQUEST['titulo_dica'];
+            if(!empty($titulo)){
+
+                $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$titulo%", FuriousExpressionsDB::LIKE);
+                $this->titulo = $titulo;
+            }
+
+        }
+        if(!empty($_REQUEST['category'])){
+          $cat = $_REQUEST['category'];
+          if(!empty($titulo)){
+              $criteria->addJoin("`cnt_categorias_conteudos`.`CCL_CNT`", $cat, FuriousExpressionsDB::LIKE);
+              $this->cat = $cat;
+          }
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "DN", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $maisDicas = ConteudoModel::doSelect($criteria);
+        $this->maisDicas = $maisDicas;
+
+
+
+        $criteria = new FuriousSelectCriteria();
+  			$criteria->add("`cnt_categorias`.`CAT_COR`", "DICA", FuriousExpressionsDB::EQUAL);
+  			$criteria->add("`cnt_categorias`.`CAT_TIP`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+
+  			$this->categorias = CategoriasModel::doSelect($criteria);
+
+
+        $this->bodyClasses = "home bege tips";
+    }
+
+    public function maisDicasnutricao(){
+
+        $perPage = 10;
+        $page = 0;
+        if(!empty($_GET['page']) && (int)$_GET['page']){
+            $page = ((int)$_GET['page']);
+            $pagination = $page[0];
+        }
+
+
+
+        $criteria = new FuriousSelectCriteria();
+        if(!empty($_GET['titulo'])){
+            $titulo = $_GET['titulo'];
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$titulo%", FuriousExpressionsDB::LIKE);
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "DN", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->setLimit($perPage);
+        $criteria->setOffset(ceil($page*$perPage));
+
+        $maisDicas = ConteudoModel::doSelect($criteria);
+
+        $this->maisDicas = $maisDicas;
+    }
+
+    public function dicasdenutricaointerna($vars){
+
+        $id = $vars['VARS']['ID'];
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_ID`", $id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "DN", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $dica = ConteudoModel::doSelect($criteria);
+
+        $this->dica = $dica[0];
+
+
+        //-------------------------------------------
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "DN", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $dicas = ConteudoModel::doSelect($criteria);
+
+        $this->dicas = $dicas;
+
+
+
+        if(isset($_GET['print'])){
+            $this->bodyClasses = "home internalTips print";
+            $this->setLayout('impressao');
+            $this->setTemplate('dicasdenutricaointernaPrint');
+
+        }
+
+        $this->bodyClasses = "home bege internalTips";
+    }
+
+    public function faq($vars){
+
+        $criteria = new FuriousSelectCriteria();
+
+        if($_POST){
+            $busca = addslashes($_POST['releaseSearch']);
+            $criteria->addComplexFilter("`cnt_conteudo`.`CNT_TIT`", "%$busca%", FuriousExpressionsDB::LIKE, "`cnt_conteudo`.`CNT_TXT`", "%$busca%", FuriousExpressionsDB::LIKE, FuriousExpressionsDB::SQL_OR);
+
+        }
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 8, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+
+        $this->conteudo = $conteudo;
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{FAQ}"
+            ),
+        ),
+            "IMAGE" => APP_JS_PREFIX ."images/_imgMedia.jpg",
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+
+
+
+        $this->bodyClasses = "home red questions";
+    }
+
+
+    public function imprensa($vars = null)
+    {
+
+        $this->bodyClasses = "home red imprensa";
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        if (!empty($_POST)) {
+
+            $releaseSearch = $_POST['releaseSearch'];
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$releaseSearch%", FuriousExpressionsDB::LIKE);
+
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "NT", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`", 32, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+        //32 EH O ID DA CATEGORIA DE IMPRENSA
+
+        //$noticias = ConteudoModel::doSelect($criteria);
+        //$this->noticias = $noticias;
+
+        $this->doPagination('ConteudoModel', 'noticias', $criteria, $vars, 10);
+
+    }
+
+    public function releases($vars = null)
+    {
+
+        $this->bodyClasses = "home red imprensa";
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        if (!empty($_POST)) {
+
+            $releaseSearch = $_POST['releaseSearch'];
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$releaseSearch%", FuriousExpressionsDB::LIKE);
+
+        }
+        $this->heading = array("BREADCRUMB" => array(
+          "LINKS" => array(
+            '/a-piracanjuba/quem-somos' => "{A_Piracanjuba}",
+            $vars[0][0] => "Releases"
+          ),
+        ),
+        "IMAGE" => APP_JS_PREFIX . "images/_imgMedia.jpg",
+        "TXT" => "{SLOGAN_RELEASE}"
+        );
+        $this->pageTitle = "Releases";
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "NT", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`", 35, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $this->doPagination('ConteudoModel', 'releases', $criteria, $vars, 10);
+
+    }
+
+    public function piracanjubaNaMidia($vars = null)
+    {
+
+        $this->bodyClasses = "home red imprensa";
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        if (!empty($_POST)) {
+
+            $releaseSearch = $_POST['releaseSearch'];
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$releaseSearch%", FuriousExpressionsDB::LIKE);
+
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "NT", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`", 59, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $this->doPagination('ConteudoModel', 'releases', $criteria, $vars, 10);
+
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '/a-piracanjuba/quem-somos' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Piracanjuba_na_Midia}"
+            ),
+        ),
+            "IMAGE" => APP_JS_PREFIX . "images/_imgMedia.jpg",
+            "TXT" => "{SLOGAN_RELEASE}"
+        );
+        $this->pageTitle = "{Piracanjuba_na_Midia}";
+
+
+    }
+
+
+
+    public function lei12669(){
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 9, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo;
+
+        //--------------------------------
+        // Filters
+        //
+        $filters = array(
+          "years" => "`cnt_destaques`.`DTQ_LTX`",
+          "months" => "`cnt_destaques`.`DTQ_LN2`"
+        );
+
+
+        foreach($filters as $outVar => $group){
+          $criteria = new FuriousSelectCriteria();
+
+          $criteria->add("`cnt_destaques`.`DTQ_TIP`", "ple", FuriousExpressionsDB::EQUAL);
+          $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+          //$criteria->add($group, "", FuriousExpressionsDB::NOT_EQUAL);
+          $criteria->addGroupBy($group);
+          $itens = DestaquesModel::doSelect($criteria);
+          $this->$outVar = $itens;
+        }
+        ///
+
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "ple", FuriousExpressionsDB::EQUAL);
+        if(!empty($_POST['year'])){
+            $criteria->add("`cnt_destaques`.`DTQ_LTX`", addslashes($_POST['year']), FuriousExpressionsDB::EQUAL);
+        }
+        if(!empty($_POST['month'])){
+            $criteria->add("`cnt_destaques`.`DTQ_LN2`", addslashes($_POST['month']), FuriousExpressionsDB::EQUAL);
+        }
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $itens = DestaquesModel::doSelect($criteria);
+        $this->itens = $itens;
+
+        //-------------------------------------
+        $this->arrayTables = array(
+          "pbp" => "proteina",
+          "pae" => "adicional_escala",
+          "pbc" => "contagem_bacteriana",
+          "pba" => "adicional_distancia",
+          "pbt" => "taxa_frio",
+          "pbg" => "gordura",
+          "pc2" => "contagem_celulas"
+        );
+        foreach($this->arrayTables as $key => $outVar){
+          $criteria = new FuriousSelectCriteria();
+          $criteria->add("`cnt_destaques`.`DTQ_TIP`", $key, FuriousExpressionsDB::EQUAL);
+          $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+          $criteria->add("`cnt_destaques`.`DTQ_FIM`", date("Y-m-d H:i:s"), FuriousExpressionsDB::GREATER_EQUAL);
+          $this->$outVar = DestaquesModel::doSelect($criteria);;
+        }
+
+
+        $this->bodyClasses = "home green purchase law";
+    }
+
+    public function ondeEncontrar($vars)
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+
+        $this->heading = array("BREADCRUMB" => array("LINKS" => array('/ondeEncontrar' => "{WHERE_TO_FIND}")));
+        $this->pageTitle = "{WHERE_TO_FIND}";
+
+        if (!empty($_REQUEST)) {
+
+
+            $produto = $_REQUEST['produto'];
+            $cidade = $_REQUEST['cidade'];
+            $estado = $_REQUEST['estado'];
+
+            if (!empty($produto)) {
+
+                $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos` AS categoria_rep", "`categoria_rep`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+                $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_conteudo` AS prod", "`prod`.`CNT_TIP`", "'PROD'");
+                $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos` AS categoria_prod", "`categoria_prod`.`CCL_CNT`", "`prod`.`CNT_ID`");
+
+                $criteria->add("`prod`.`CNT_TIT`", "%$produto%", FuriousExpressionsDB::LIKE);
+                $criteria->add("`prod`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+                $criteria->add("`prod`.`CNT_ID`", "", FuriousExpressionsDB::IS_NOT_NULL);
+
+                $criteria->add("`categoria_rep`.`CCL_CNT`", "", FuriousExpressionsDB::IS_NOT_NULL);
+                $criteria->add("`categoria_rep`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+                $criteria->add("`categoria_prod`.`CCL_CNT`", "", FuriousExpressionsDB::IS_NOT_NULL);
+                $criteria->add("`categoria_prod`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+            }
+
+            if (!empty($cidade)) {
+                $criteria->add("`cnt_conteudo`.`CNT_RDT`", "$cidade", FuriousExpressionsDB::LIKE);
+            }
+
+            if (!empty($estado)) {
+
+                $criteriaEstado = new FuriousSelectCriteria();
+                $criteriaEstado->addComplexFilter("`estado`.`sigla`", "%$estado%", FuriousExpressionsDB::LIKE, "`estado`.`nome`", "$estado%", FuriousExpressionsDB::LIKE, FuriousExpressionsDB::SQL_OR);
+
+                $estado = EstadoModel::doSelect($criteriaEstado);
+
+                if (!empty($estado[0])) {
+                    $estado_id = $estado[0]->id;
+                } else {
+                    $estado_id = 0;
+                }
+                $criteria->add("`cnt_conteudo`.`CNT_CKY`", $estado_id, FuriousExpressionsDB::EQUAL);
+
+            }
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "REP", FuriousExpressionsDB::EQUAL);
+
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $criteria->addGroupBy("`cnt_conteudo`.`CNT_ID`");
+
+        $this->doPagination('ConteudoModel', 'representantes', $criteria, $vars);
+
+        $this->bodyClasses = "home red onde";
+    }
+
+
+    public function piracanjubaProCampo(){
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 3, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo;
+
+
+        $this->bodyClasses = "home green purchase";
+
+    }
+
+
+    public function produtos($vars){
+
+        $this->heading = array("BREADCRUMB" => array(
+          "LINKS" => array("/produtos" => "{Products}")),
+          "IMAGE" => "",
+          "SHOW_IMAGE" => false
+        );
+        $this->pageTitle = "{Products}";
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_categorias`.`CAT_COR`", "prod", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias`.`CAT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias`.`CAT_ID`", 34, FuriousExpressionsDB::NOT_EQUAL);
+        $criteria->addAscendingOrder("`cnt_categorias`.`CAT_NOM`");
+
+        $categorias = CategoriasModel::doSelect($criteria);
+
+        $produto = array();
+        foreach($categorias as $categoria){
+
+
+            $criteria = new FuriousSelectCriteria();
+            $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.CCL_CNT", "`cnt_conteudo`.CNT_ID");
+            $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_arquivos_conteudo`", "`cnt_arquivos_conteudo`.ARC_CID", "`cnt_conteudo`.CNT_ID");
+            $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`",  $categoria->CAT_ID, FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_arquivos_conteudo`.`ARC_CTP`",  "THB_CNT"  , FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_arquivos_conteudo`.`ARC_STS`",  "1"  , FuriousExpressionsDB::EQUAL);
+            //$criteria->add("`cnt_conteudo`.`CNT_ID`",  $cat[0]->CCL_CNT, FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_conteudo`.`CNT_STS`",  1, FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_conteudo`.`CNT_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+            $prod = ConteudoModel::doSelect($criteria);
+
+            $produto[$categoria->CAT_ID] = $prod[0];
+
+        }
+
+        $this->produto = $produto;
+        $this->categorias = $categorias;
+
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Produtos}"
+            ),
+        ),
+            //"IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+
+        $this->pageTitle = "{Produtos}";
+
+
+        $this->bodyClasses = "home red product";
+
+    }
+
+    public function produtosInterna($vars){
+
+
+
+        $produto_id = $vars['VARS']['ID'];
+
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_ID`",  $produto_id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`",  1, FuriousExpressionsDB::EQUAL);
+        $produto = ConteudoModel::doSelect($criteria);
+
+        $this->produto =$produto[0];
+        //------------------------------------------------------
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addField2("case `cnt_categorias`.`CAT_NOM`  when 'Zero Lactose' then 3  when 'Pirakids School' then 2 when 'Pirakids' then 1 else 0 end as ord");
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CNT`",  $produto_id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias`", "`cnt_categorias_conteudos`.`CCL_CAT`", "`cnt_categorias`.`CAT_ID`");
+        $criteria->addDescendingOrder("ord");
+        $cat = CategoriaconteudoModel::doSelect($criteria);
+
+        //------------------------------------------------------
+
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_categorias`.`CAT_ID`",  $cat[0]->CCL_CAT, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias`.`CAT_STS`",  1, FuriousExpressionsDB::EQUAL);
+        $categoria = CategoriasModel::doSelect($criteria);
+
+        $this->categoria = $categoria[0];
+
+
+        //OUTROS PRODUTOS
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        $criteria->add("`cnt_conteudo`.`CNT_DTA`", $this->produto->CNT_DTA, FuriousExpressionsDB::GREATER_THAN);
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_ID`",  $produto_id, FuriousExpressionsDB::NOT_EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`",  $cat[0]->CCL_CAT, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->addAscendingOrder("`cnt_conteudo`.`CNT_DTA`");
+        $criteria->setLimit(1);
+
+        $prodMaior = ConteudoModel::doSelect($criteria);
+
+        $this->prodMaior = $prodMaior[0];
+
+
+        //---------------------------
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        $criteria->add("`cnt_conteudo`.`CNT_DTA`", $this->produto->CNT_DTA, FuriousExpressionsDB::MINOR_THAN);
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_ID`",  $produto_id, FuriousExpressionsDB::NOT_EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`",  $cat[0]->CCL_CAT, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->addDescendingOrder("`cnt_conteudo`.`CNT_DTA`");
+        $criteria->setLimit(1);
+
+        $prodMenor = ConteudoModel::doSelect($criteria);
+
+        $this->prodMenor = $prodMenor[0];
+
+
+
+        //------------------------------------------------------
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`",  "REC", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`",  1, FuriousExpressionsDB::EQUAL);
+        $receitas = ConteudoModel::doSelect($criteria);
+
+        $this->receita = $receitas[0];
+
+        //------------------------------------------------------
+
+
+        //PROXIMO PRODUTO
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_ID`",  $produto_id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`",  1, FuriousExpressionsDB::EQUAL);
+        $produto = ConteudoModel::doSelect($criteria);
+
+        $this->produto =$produto[0];
+
+
+        $this->cat0 = $categoria[0];
+
+        if($categoria[0]->CAT_NOM == "Pirakids"){
+
+            $this->bodyClasses = "home brown internalProduct";
+            $this->setTemplate("pirakids");
+        }elseif($categoria[0]->CAT_NOM == "Zero Lactose"){
+            $this->bodyClasses = "home orange internalProduct zero";
+            $this->setTemplate("zeroLactose");
+        }elseif($categoria[0]->CAT_NOM == "Pirakids School"){
+            $this->bodyClasses = "home blue internalProduct";
+            $this->setTemplate("pirakidsSchool");
+        }else{
+            $this->bodyClasses = "home red internalProduct";
+        }
+
+        $this->pageTitle = "{Produtos}";
+
+        /*if($categoria = pirakids){
+
+            $this->bodyClasses = "home brown internalProduct";
+        }*/
+    }
+
+    public function produtosInternaTabela($vars = null){
+
+        $this->produtosInterna($vars);
+        $produto_id = $this->produto->CNT_ID;
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`tabela_nutricional`.`produto_id`",  $produto_id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`tabela_nutricional`.`status`", 1, FuriousExpressionsDB::EQUAL);
+        $tabela = TabelaNutricionalModel::doSelect($criteria);
+
+
+        $this->tabela = $tabela;
+
+        $categoria[0] = $this->cat0;
+
+        $this->setTemplate("produtosInternaTabela");
+
+    }
+
+    public function qualidadeDoLeite($vars = null){
+
+        $criteria = new FuriousSelectCriteria();
+        if(!empty($vars['VARS']) && !empty($vars['VARS']['ID'])){
+            $criteria->add("`cnt_conteudo`.`CNT_ID`", $vars['VARS']['ID'], FuriousExpressionsDB::EQUAL);
+        } else {
+            $criteria->add("`cnt_conteudo`.`CNT_IPR`", 16, FuriousExpressionsDB::EQUAL);
+        }
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        if(!empty($conteudo[0])){
+          $this->conteudo = $conteudo[0];
+
+          $this->heading = array("BREADCRUMB" => array("LINKS" => array($this->conteudo->getUrl() => $this->conteudo->getCNTTIT())));
+          $this->pageTitle = $this->conteudo->getCNTTIT();
+
+          $this->bodyClasses = "home green purchase";
+        } else {
+          $this->Error404();
+        }
+
+
+    }
+
+    public function equipeDeCompraLeite($vars){
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 16, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo[0];
+
+
+
+        $this->bodyClasses = "home green purchase";
+
+    }
+
+    public function pagamentoDeLeite($vars){
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 16, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo[0];
+
+
+
+        $this->bodyClasses = "home green purchase";
+
+    }
+
+
+
+
+    public function representantes($vars = null){
+
+
+      $this->heading = array("BREADCRUMB" => array("LINKS" => array("/a-piracanjuba" => "{A_Piracanjuba}", $vars[0][0] => "{Representantes}"), "TXT" => "{MSG_REPRESENTANTES}"));
+      $this->pageTitle = "{Representantes}";
+
+
+      $criteria = new FuriousSelectCriteria();
+
+      $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+      if (!empty($_GET['releaseSearch'])) {
+
+          $releaseSearch = addslashes($_GET['releaseSearch']);
+          $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$releaseSearch%", FuriousExpressionsDB::LIKE);
+
+      }
+      $this->ufs = array(
+        "AC" => "Acre",
+        "AL" => "Alagoas",
+        "AP" => "Amapá",
+        "AM" => "Amazonas",
+        "BA" => "Bahia",
+        "CE" => "Ceará",
+        "DF" => "Distrito Federal",
+        "ES" => "Espírito Santo",
+        "GO" => "Goiás",
+        "MA" => "Maranhão",
+        "MT" => "Mato Grosso",
+        "MS" => "Mato Grosso do Sul",
+        "MG" => "Minas Gerais",
+        "PA" => "Pará",
+        "PB" => "Paraíba",
+        "PR" => "Paraná",
+        "PE" => "Pernambuco",
+        "PI" => "Piauí",
+        "RJ" => "Rio de Janeiro",
+        "RN" => "Rio Grande do Norte",
+        "RS" => "Rio Grande do Sul",
+        "RR" => "Rondônia",
+        "RO" => "Roraima",
+        "SC" => "Santa Catarina",
+        "SP" => "São Paulo",
+        "SE" => "Sergipe",
+        "TO" => "Tocantins"
+      );
+      $ufsIndex = array_keys($this->ufs);
+      $this->ufsIndex = $ufsIndex;
+      $this->currentState = "Brasil";
+
+      $this->imgUF = array_search($ufsIndex[rand(0, (count($this->ufs)-1))], $this->ufs);
+
+      if (!empty($_GET['uf']) && !empty($this->ufs[strtoupper($_GET['uf'])])) {
+          $uf = array_search(strtoupper($_GET['uf']), $ufsIndex);
+          if($uf){
+            $this->imgUF = $uf;
+            $this->currentState = $this->ufs[strtoupper($_GET['uf'])];
+          }
+          $criteria->add("`cnt_conteudo`.`CNT_CKY`", $uf, FuriousExpressionsDB::EQUAL);
+
+
+      }
+
+      $criteria->add("`cnt_conteudo`.`CNT_TIP`", "REP", FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+      $this->releases = ConteudoModel::doSelect($criteria);
+
+
+      $criteria = new FuriousSelectCriteria();
+      $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto`", "`w11_produto`.`PDT_ID`", "`cnt_destaques`.`DTQ_EDT`");
+      $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto_menu`", "`w11_produto_menu`.`MNU_TIP`", "CONCAT(`cnt_destaques`.`DTQ_TIP`, \"/index\")");
+      $criteria->add("`w11_produto`.`PDT_URL`", $vars[0][0], FuriousExpressionsDB::EQUAL);
+      $criteria->add("`w11_produto`.`PDT_OMN`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_destaques`.`DTQ_STS`", '1', FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_destaques`.`DTQ_TIP`", $this->imgUF, FuriousExpressionsDB::EQUAL);
+      $criteria->setLimit(1);
+
+
+      $this->img = DestaquesModel::doSelect($criteria);
+
+      $this->bodyClasses = "home red representantive imprensa";
+    }
+
+    public function unidadeFabris($vars){
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 17, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudos = $conteudo;
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Unidades}"
+            ),
+        ),
+            //"IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+
+        $this->pageTitle = "{Unidade_Fabris}";
+
+        $this->bodyClasses = "home red unit";
+    }
+
+
+    public function busca($vars = NULL)
+    {
+        $this->bodyId = "interna";
+
+        if (!empty($_GET['q'])) {
+            $q = strip_tags(addslashes($_GET['q']));
+
+            $criteria = new FuriousSelectCriteria();
+            $criteria->addComplexFilter('`cnt_conteudo`.`CNT_TIT`', '%' . $q . '%', FuriousExpressionsDB::LIKE, '`cnt_conteudo`.`CNT_TXT`', '%' . $q . '%', FuriousExpressionsDB::LIKE, FuriousExpressionsDB::SQL_OR);
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", '', FuriousExpressionsDB::IS_NOT_NULL);
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", '', FuriousExpressionsDB::NOT_EQUAL);
+            $criteria->add("`cnt_conteudo`.`CNT_STS`", '1', FuriousExpressionsDB::EQUAL);
+            //$criteria->add("`cnt_conteudo`.`CNT_DTA`", date('Y-m-d H:i:s'), FuriousExpressionsDB::MINOR_THAN);
+            //$criteria->add("`cnt_conteudo`.`CNT_TIP`", "ST", FuriousExpressionsDB::NOT_EQUAL);
+
+            $this->doPagination('ConteudoModel', 'content', $criteria, $vars);
+
+        }
+
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Busca}"
+            ),
+        ),
+            "SHOW_IMAGE"=>false,
+            //"IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+        $this->pageTitle = "{Busca}";
+
+        $this->bodyClasses = "home red imprensa searchPage";
+
+    }
+
+    //----------------------------------------------------------------------
+
+    public function ContatoProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "ctt", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+    public function ultimas($vars = NULL)
+    {
+        $this->initProdutoJson($vars);
+        $itensPerPage = 10;
+        $this->bodyId = "interna";
+
+        $this->jsonCat = json_decode(file_get_contents(APP_JSON_PATH . "SITE_1.json"), true);
+
+        $this->doPaginationJSON(count($this->jsonCat["news"]), $vars, $itensPerPage);
+
+    }
+
+
+
+
+
+    public function galerias($vars = NULL)
+    {
+        $this->initProdutoJson($vars);
+        $itensPerPage = 10;
+        $this->bodyId = "interna";
+
+        $this->jsonCat = json_decode(file_get_contents(APP_JSON_PATH . "SITE_1_GA.json"), true);
+
+        $this->doPaginationJSON(count($this->jsonCat["news"]), $vars, $itensPerPage);
+
+    }
+
+    public function OqueeoProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "oqp", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+    public function OqueeoProCampo2()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "oq2", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield the-profield";
+
+
+    }
+
+
+    public function PerguntasFrequentesProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "pgt", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield questions";
+
+
+    }
+
+
+    public function EquipeProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "eqp", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+
+
+
+    public function QualidadeDoLeitoProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "qdl", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+    public function CalendarioProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "cld", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+    public function proCampoParceiros()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "prc", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+
+
+
+
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public function editoria($vars = NULL)
+    {
+
+        $this->initProdutoJson($vars);
+        //$this->template = (!empty($vars['VARS']['TEMPLATE']))?$vars['VARS']['TEMPLATE']:FALSE;
+        if (!empty($vars['VARS']['TEMPLATE'])) {
+            if ($vars['VARS']['TEMPLATE'] == "albuns") {
+                $vars['VARS']['TYPE'] = "GA";
+            }
+            if ($vars['VARS']['TEMPLATE'] == "videos") {
+                $vars['VARS']['TYPE'] = "VD";
+            }
+        }
+
+        $this->loadCategoryJson($vars);
+
+        $this->bodyId = "interna";
+        //sobrescrever o pageTitle da página [passar para o pagetTitle de noticias e não de produto]
+        //ex: $this->pageTitle = $this->pagetitleNoticia;
+
+        if ((!empty($this->template)) && ($this->template == "cidadezinhaalerta" || $this->template == "historiasquadrinhos")) {
+
+        } else {
+            $this->totalItens = count($this->jsonCat["news"]);
+
+            $this->currentPage = (!empty($_GET['page'])) ? ((int)$_GET['page']) : 0;
+
+            if (!empty($this->template)) {
+                //var_dump($this->template);
+                switch ($this->template) {
+                    case ($this->template == "principaiscasos"):
+                        $itensPerPage = 3;
+                        break;
+                    case ($this->template == "bastidores"):
+                        $itensPerPage = 9;
+                        break;
+                    case ($this->template == "crimedecodificado"):
+                        $itensPerPage = 6;
+                        break;
+                    case ($this->template == "porumdia"):
+                        $itensPerPage = 4;
+                        break;
+                    case ($this->template == "marcelorezendenarra"):
+                        $itensPerPage = 7;
+                        break;
+                    case ($this->template == "blog"):
+                        $itensPerPage = 4;
+                        break;
+                    default:
+                        $itensPerPage = 12;
+                }
+            } else {
+                $itensPerPage = 10;
+            }
+
+            $this->doPaginationJSON(count($this->jsonCat["news"]), $vars, $itensPerPage);
+
+        }
+
+        if ((!empty($this->template)) && ($this->template == "marcelorezendenarra")) {
+
+            $this->initConteudoJson(array("VARS" => array("ID" => 67)));
+
+            $this->doPaginationJSON(count($this->content['comments']), $vars, $itensPerPage);
+            //var_dump($vars);
+            if (Document::hasFile(APP_JSON_PATH . "SITE_" . APP_DEFAULT_EDITORIAL . "_NT.json")) {
+                $this->news = json_decode(file_get_contents(APP_JSON_PATH . "SITE_" . APP_DEFAULT_EDITORIAL . "_NT.json"), true);
+            }
+
+            if (!empty($_POST)) {
+                $nome = $_POST['nome'];
+                $email = $_POST['email'];
+                $telefone = $_POST['telefone'];
+                $estado = $_POST['estado'];
+                $upload;
+
+                //echo ($nome." - ".$email." - ".$telefone." - ".$estado." - ".$upload);
+
+                $coment = new Mensagens();
+                $coment->MSG_NOM = $nome;
+                $coment->MSG_CNT = 67;
+                $coment->MSG_IPR = 1;
+                $coment->MSG_EMA = $email;
+                $coment->MSG_TEL = $telefone;
+                $coment->MSG_TIT = $estado;
+
+                if (!empty($_FILES['upload'])) {
+                    if (!is_array($_FILES['upload']['error'])) {
+                        if ($_FILES['upload']['error'] == UPLOAD_ERR_OK) {
+
+                            $name = Slugfy($_FILES['upload']['name']);
+                            $dir = Document::renderYMDStructure("uploads/users/", time());
+                            if (!empty($dir)) {
+
+                                $path = $dir . (str_replace(" ", "_", $_FILES['upload']['name']));
+
+                                if (!Document::hasFile($path)) {
+                                    if (Document::moveUploadedFile($_FILES['upload']["tmp_name"], $path)) {
+                                        $arquivo = new Arquivo();
+                                        $arquivo->ARQ_EXT = Document::getFileExtension($_FILES['upload']["name"]);
+                                        $arquivo->ARQ_DIR = "uploads/users/";
+                                        $arquivo->ARQ_NOM = str_replace(" ", "_", $_FILES['upload']['name']);
+                                        $arquivo->ARQ_DTA = date("Y-m-d H:i:s");
+                                        $arquivo->ARQ_STS = 1;
+                                        $save = $arquivo->save();
+                                        if ($save == true) {
+                                            $upload = $arquivo->getARQID();
+                                            //var_dump($upload);
+                                        }
+                                    }
+                                } else {
+                                    $dirPath = "uploads/users/" . (date("Y")) . "/" . (date("m")) . "/" . (date("d")) . "/";
+                                    $fileName = Document::generateFilePrefix(str_replace(" ", "_", $_FILES['upload']['name']), $dirPath);
+                                    if ($fileName !== false) {
+                                        if (Document::moveUploadedFile($_FILES["upload"]["tmp_name"], sprintf("%s%s", $dirPath, $fileName))) {
+                                            $arquivo = new Arquivo();
+                                            $arquivo->ARQ_EXT = Document::getFileExtension($fileName);
+                                            $arquivo->ARQ_DIR = "uploads/users/";
+                                            $arquivo->ARQ_NOM = $fileName;
+                                            $arquivo->ARQ_DTA = date("Y-m-d H:i:s");
+                                            $arquivo->ARQ_STS = 1;
+                                            $save = $arquivo->save();
+
+                                            if ($save == true) {
+                                                $upload = $arquivo->getARQID();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        foreach ($_FILES["images"]["errors"] as $key => $error) {
+                            if ($error == UPLOAD_ERR_OK) {
+
+                                $name = $_FILES['images']['name'][$key];
+                                $dir = Document::renderYMDStructure("uploads/users/", time());
+
+                                if (!empty($dir)) {
+                                    $path = $dir . (str_replace(" ", "_", $_FILES['upload']['name']));
+
+                                    if (!Document::hasFile($path)) {
+                                        if (Document::moveUploadedFile($_FILES["images"]["tmp_name"][$key], $path)) {
+                                            $arquivo = new Arquivo();
+                                            $arquivo->ARQ_EXT = Document::getFileExtension($_FILES["images"]["name"][$key]);
+                                            $arquivo->ARQ_NOM = $_FILES['images']['name'][$key];
+                                            $arquivo->ARQ_DIR = "uploads/users/";
+                                            $arquivo->ARQ_DTA = date("Y-m-d H:i:s");
+                                            $arquivo->ARQ_STS = 1;
+                                            $save = $arquivo->save();
+                                            if ($save) {
+                                                $upload = $arquivo->getARQID();
+                                            }
+                                        }
+                                    } else {
+                                        $dirPath = "uploads/" . (date("Y")) . "/" . (date("m")) . "/" . (date("d")) . "/";
+                                        $fileName = Document::generateFilePrefix($_FILES['images']['name'][$key], $dirPath);
+                                        if ($fileName !== false) {
+                                            if (Document::moveUploadedFile($_FILES["images"]["tmp_name"][$key], sprintf("%s%s", $dirPath, $fileName))) {
+                                                $arquivo = new Arquivo();
+                                                $arquivo->ARQ_EXT = Document::getFileExtension($fileName);
+                                                $arquivo->ARQ_NOM = $fileName;
+                                                $arquivo->ARQ_DIR = "uploads/users/";
+                                                $arquivo->ARQ_DTA = date("Y-m-d H:i:s");
+                                                $arquivo->ARQ_STS = 1;
+                                                $save = $arquivo->save();
+                                                if ($save) {
+                                                    $upload = $arquivo->getARQID();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    echo("É necessário o preenchimento do campo upload.");
+                }
+
+                $coment->MSG_TXT = $upload;
+                $coment->MSG_STS = 0;
+                $coment->save();
+                if ($coment->save() == true) {
+                    $this->Success = true;
+                }
+            }
+
+        }
+
+    }
+
+    public function subPorumDia($vars = null)
+    {
+        $this->subeditoria($vars);
+
+        if (!empty($_POST['pordia'])) {
+            $values = $_POST['pordia'];
+            $this->values = $values;
+            $errors = array();
+
+            $obrigatory = array("nome" => "Nome", "cidade" => "Cidade", "embed" => "Embed", "email" => "E-mail");
+            foreach ($obrigatory as $field => $label) {
+                $value = trim($values[$field]);
+                if (empty($value)) {
+                    $errors[] = $label . " não pode ficar vazio.";
+                }
+            }
+            if (empty($values['concordo'])) {
+                $errors[] = "Você deve aceitar os termos";
+            }
+            if (!empty($values['email']) && !filter_var($values['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "E-mail inválido";
+            }
+            if (!empty($values['embed']) && !preg_match("/youtube\.com\/watch\?v\=/i", $values['embed'])) {
+                $errors[] = "Url do youtube inválida";
+            }
+
+            if (count($errors) > 0) {
+                $this->errors = $errors;
+            } else {
+                $coment = new Mensagens();
+                $coment->MSG_NOM = addslashes(utf8_decode($values['nome']));
+                $coment->MSG_CNT = 68;
+                $coment->MSG_IPR = 1;
+                $coment->MSG_EMA = addslashes(utf8_decode($values['email']));;
+                $coment->MSG_TIT = addslashes(utf8_decode($values['cidade']));;
+                $coment->MSG_TXT = addslashes(utf8_decode($values['embed']));;
+                $coment->MSG_STS = 0;
+                if ($coment->save()) {
+                    $this->success = true;
+                }
+            }
+        }
+    }
+
+    public function subeditoria($vars = NULL)
+    {
+        $this->template = (!empty($vars['VARS']['TEMPLATE'])) ? $vars['VARS']['TEMPLATE'] : "subeditoria";
+        $this->setTemplate($this->template);
+        $this->editoria($vars);
+        $this->bodyId = "interna";
+    }
+
+    public function internaAnos($vars = null)
+    {
+      $criteria = new FuriousSelectCriteria();
+      $criteria->add("`cnt_conteudo`.`CNT_ID`", addslashes($vars['VARS']['ID']), FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_conteudo`.`CNT_TIP`", 'AN', FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_conteudo`.`CNT_DTA`", date("Y-m-d H:i:s"), FuriousExpressionsDB::MINOR_EQUAL);
+      $criteria->setLimit(1);
+      $this->content = ConteudoModel::doSelect($criteria);
+
+      if(empty($this->content[0])){
+        $this->Error404();
+      } else {
+        $this->content = $this->content[0];
+      }
+    }
+}
+
+?>
+=======
+<?php
+
+class HomeController extends DefaultController
+{
+    static $hasSaibaMais = false;
+    public $bodyClasses = "home";
+
+    public function index($vars = NULL)
+    {
+        //$this->initProdutoJson($vars);
+        $this->bodyClasses = "home red";
+    }
+
+
+
+
+    public function aPiracanjuba($vars)
+    {
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "apt", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $topo = DestaquesModel::doSelect($criteria);
+        $this->topo = $topo;
+
+        //-----------
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "apc", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = DestaquesModel::doSelect($criteria);
+        $this->conteudo = $conteudo;
+        //-----------
+
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CAT`", "`cnt_categorias`.`CAT_ID`");
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_conteudo`", "`cnt_conteudo`.`CNT_ID`", "`cnt_categorias_conteudos`.`CCL_CNT`");
+        $criteria->add("`cnt_categorias`.`CAT_COR`", "anos", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias`.`CAT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->addGroupBy("`cnt_categorias`.`CAT_ID`");
+
+        $this->timelineYears = CategoriasModel::doSelect($criteria);
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Quem_somos}"
+            ),
+        ),
+            "IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+        $this->bodyClasses = "home red the-piracanjuba";
+    }
+
+
+    public function caminhoDoLeite($vars){
+        $this->layoutVars['semrodape'] = true;
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 14, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_DTA`", date("Y-m-d H:i:s"), FuriousExpressionsDB::MINOR_EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->addAscendingOrder("`cnt_conteudo`.`CNT_DTA`");
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo;
+
+        /*$this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Caminho_do_Leite}"
+            ),
+        ),
+            //"IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );*/
+
+        $this->pageTitle = "{Caminho_do_Leite}";
+
+
+        $this->bodyClasses = "home milkway skroll-content";
+    }
+
+    public function compradeleite($vars){
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 6, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $conteudo = ConteudoModel::doSelect($criteria);
+
+        $this->conteudo = $conteudo;
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{Produtor de leite}",
+                $vars[0][0] => "{Compra de Leite}"
+            ),
+        ),
+            "IMAGE" => APP_JS_PREFIX . "images/_imgMedia.jpg",
+            "TXT" => "{PROGRAMA_DE_APOIO_TECNICO_AO_RPODUTOR_DE_LEITE_PIRACAMJUBA}"
+        );
+        $this->bodyClasses = "home green purchase";
+    }
+
+
+    public function contato($vars = null)
+    {
+        $criteria = new FuriousSelectCriteria();
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto`", "`w11_produto`.`PDT_ID`", "`cnt_destaques`.`DTQ_EDT`");
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto_menu`", "`w11_produto_menu`.`MNU_TIP`", "CONCAT(`cnt_destaques`.`DTQ_TIP`, \"/index\")");
+        $criteria->add("`w11_produto`.`PDT_URL`", $vars[0][0], FuriousExpressionsDB::EQUAL);
+        $criteria->add("`w11_produto`.`PDT_OMN`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "sac", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+
+        $this->sac = $destaques;
+
+
+
+        $this->heading = array(
+          "BREADCRUMB" => array("LINKS" => array($vars[0][0] => "{FALE_CONOSCO}")),
+          "IMAGE" => APP_JS_PREFIX . "images/_fale.jpg",
+          "TXT" => "Serviço de Atendimento ao Consumidor",
+          "DESC" => "Para dúvidas, sugestões, reclamações ou crítica, a Piracanjuba está a sua inteira disposição. Deixe aqui sua mensagem, sua opinião é muito importante para nós.",
+          "DESC2" => "<small>Telefone para contato</small><br />0800 722 1718"
+        );
+
+        if(!empty($this->sac[0])){
+          $dtq = $this->sac[0];
+          $fto = $dtq->getDTQFTO();
+          if(!empty($fto)){
+            $this->heading["IMAGE"] = $fto->getFile()->getPath2();
+          }
+
+        }
+        $this->pageTitle = "{FALE_CONOSCO}";
+
+        $this->subjects = array();
+        $this->to = array();
+
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto`", "`w11_produto`.`PDT_ID`", "`cnt_destaques`.`DTQ_EDT`");
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto_menu`", "`w11_produto_menu`.`MNU_TIP`", "CONCAT(`cnt_destaques`.`DTQ_TIP`, \"/index\")");
+        $criteria->add("`w11_produto`.`PDT_URL`", $vars[0][0], FuriousExpressionsDB::EQUAL);
+        $criteria->add("`w11_produto`.`PDT_OMN`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "ar", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $subjects = DestaquesModel::doSelect($criteria);
+
+        if(!empty($subjects[0])){
+
+            foreach($subjects as $sub){
+              $this->subjects[] = $sub->getDTQTIT();
+              $this->to[] = $sub->getDTQTXT();
+            }
+        }
+
+
+
+
+        if (!empty($_POST)) {
+            $this->errors = array();
+
+
+            if(!empty($_FILES['image']) && !empty($_FILES['image']['tmp_name'])){
+              if(!preg_match("/image/i", $_FILES['image']['type'])){
+                $this->errors["image"] = "<strong>{Image}</strong> {Invalid file format}";
+              }
+            }
+
+
+
+          $bro = new Browser();
+          $bro->setURL("https://www.google.com/recaptcha/api/siteverify");
+
+          $bro->addPOSTData(array("secret" => "6LeuvyUTAAAAANoUQDt1XdvLoJvE2bntCnwDFnu-", "response" => $_POST['g-recaptcha-response'], "remoteip" => ($_SERVER['REMOTE_ADDR'] != "127.0.0.1")?$_SERVER['REMOTE_ADDR']:"179.208.177.216"));
+          $data = json_encode($bro->go());
+
+          $this->fields = array(
+            "area" => "{Area}",
+            "name" => "{Name}",
+            "gender" => "{Gender}",
+            "birth" => "{Birth}",
+            "relationship" => "{Relationship}",
+            "cpf" => "{cpf}",
+            "cellphone" => "{Cellphone}",
+            "phone" => "{Phone}",
+            "email" => "{Email}",
+            "zipcode" => "{Zipcode}",
+            "address" => "{Address}",
+            "number" => "{Number}",
+            "additional" => "{Additional}",
+            "address2" => "{Address2}",
+            "country" => "{Country}",
+            "state" => "{State}",
+            "city" => "{City}",
+            "subject" => "{Subject}",
+            "message" => "{Message}"
+          );
+          $this->values = array();
+          foreach($this->fields as $field => $label){
+            $this->values[$field] = (!empty($_POST[$field]))?$_POST[$field]:"";
+          }
+          $this->obrigatory = array(
+            "area",
+            "name",
+            "gender",
+            "birth",
+            "relationship",
+            "cpf",
+            "cellphone",
+            "phone",
+            "email",
+            "zipcode",
+            "address",
+            "number",
+            "country",
+            "state",
+            "city",
+            "subject",
+            "message"
+          );
+
+
+          foreach($this->obrigatory as $field){
+            if(empty($_POST[$field])){
+              $this->errors[$field] = "<strong>" . $this->fields[$field]  . "</strong> {cant be blank}";
+              continue;
+            }
+            switch($field){
+              case "email":
+                if(!filter_var($_POST[$field], FILTER_VALIDATE_EMAIL)){
+                  $this->errors[$field] = "<strong>".$this->fields[$field]."</strong> {Invalid}";
+                }
+              break;
+              case "cpf":
+                if(!validaCPF($_POST[$field])){
+                  $this->errors[$field] = "<strong>".$this->fields[$field]."</strong> {Invalid}";
+                }
+              break;
+            }
+          }
+
+          // TODO: CHANGE Comparison mode
+          if(!empty($data->success) && count($this->errors) == 0){
+
+            $toSend = $this->to[$_POST[$field]];
+
+            $message = "<p>Você recebeu uma nova mensagem no site: </p>";
+            foreach(array("area", "name", "gender", "birth", "relationship", "cpf", "cellphone", "phone", "email", "zipcode", "address", "number", "additional", "address2", "country", "state", "city", "subject", "message") as $field){
+              if($field == "area"){
+                $message .= "<p>" . $this->fields[$field] . ": " . $this->subjects[$_POST[$field]] . "</p>";
+              } else {
+                $message .= "<p>" . $this->fields[$field] . ": " . $_POST[$field] . "</p>";
+              }
+
+            }
+
+            $translator = FuriousTranslator::init();
+        		$message = $translator->translate($message, "");
+
+
+            $mail = new ActiveMail();
+            if(strpos($toSend, ",") === FALSE){
+              $mail->addAddress("Contato", trim($toSend));
+            } else {
+              foreach(explode(",", $toSend) as $val){
+                $mail->addAddress("Contato", trim($val));
+              }
+            }
+
+            $mail->addSubject("Contato Piracanjuba");
+            $mail->addMessage($message);
+            if(!empty($_FILES['image']['tmp_name']) && empty($_FILES['image']['error']) ){
+              $mail->addAttachment($_FILES['image']['tmp_name'], $_FILES['image']['name']);
+            }
+
+            if(!$mail->sendMail()){
+              $this->errors[] = "{Failed to submit}";
+            } else {
+              $this->success = "{MSG_SENDED}";
+            }
+
+          } else {
+            $this->errors["captcha"] = "<strong>{Invalid Captcha}</strong>";
+          }
+
+
+        }
+
+        $this->bodyClasses = "home red contact";
+
+
+    }
+
+
+    public function dicasdenutricao($vars = null){
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto`", "`w11_produto`.`PDT_ID`", "`cnt_destaques`.`DTQ_EDT`");
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto_menu`", "`w11_produto_menu`.`MNU_TIP`", "CONCAT(`cnt_destaques`.`DTQ_TIP`, \"/index\")");
+        $criteria->add("`w11_produto`.`PDT_URL`", $vars[0][0], FuriousExpressionsDB::EQUAL);
+        $criteria->add("`w11_produto`.`PDT_OMN`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "rec", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_INI`", date("Y-m-d H:i:s"), FuriousExpressionsDB::MINOR_EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_FIM`", date("Y-m-d H:i:s"), FuriousExpressionsDB::GREATER_EQUAL);
+
+        $this->dicas = DestaquesModel::doSelect($criteria);;
+
+        $criteria = new FuriousSelectCriteria();
+        if(!empty($_REQUEST['titulo_dica'])){
+            $titulo = $_REQUEST['titulo_dica'];
+            if(!empty($titulo)){
+
+                $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$titulo%", FuriousExpressionsDB::LIKE);
+                $this->titulo = $titulo;
+            }
+
+        }
+        if(!empty($_REQUEST['category'])){
+          $cat = $_REQUEST['category'];
+          if(!empty($titulo)){
+              $criteria->addJoin("`cnt_categorias_conteudos`.`CCL_CNT`", $cat, FuriousExpressionsDB::LIKE);
+              $this->cat = $cat;
+          }
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "DN", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $maisDicas = ConteudoModel::doSelect($criteria);
+        $this->maisDicas = $maisDicas;
+
+
+
+        $criteria = new FuriousSelectCriteria();
+  			$criteria->add("`cnt_categorias`.`CAT_COR`", "DICA", FuriousExpressionsDB::EQUAL);
+  			$criteria->add("`cnt_categorias`.`CAT_TIP`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+
+  			$this->categorias = CategoriasModel::doSelect($criteria);
+
+
+        $this->bodyClasses = "home bege tips";
+    }
+
+    public function maisDicasnutricao(){
+
+        $perPage = 10;
+        $page = 0;
+        if(!empty($_GET['page']) && (int)$_GET['page']){
+            $page = ((int)$_GET['page']);
+            $pagination = $page[0];
+        }
+
+
+
+        $criteria = new FuriousSelectCriteria();
+        if(!empty($_GET['titulo'])){
+            $titulo = $_GET['titulo'];
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$titulo%", FuriousExpressionsDB::LIKE);
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "DN", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->setLimit($perPage);
+        $criteria->setOffset(ceil($page*$perPage));
+
+        $maisDicas = ConteudoModel::doSelect($criteria);
+
+        $this->maisDicas = $maisDicas;
+    }
+
+    public function dicasdenutricaointerna($vars){
+
+        $id = $vars['VARS']['ID'];
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_ID`", $id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "DN", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $dica = ConteudoModel::doSelect($criteria);
+
+        $this->dica = $dica[0];
+
+
+        //-------------------------------------------
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "DN", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $dicas = ConteudoModel::doSelect($criteria);
+
+        $this->dicas = $dicas;
+
+
+
+        if(isset($_GET['print'])){
+            $this->bodyClasses = "home internalTips print";
+            $this->setLayout('impressao');
+            $this->setTemplate('dicasdenutricaointernaPrint');
+
+        }
+
+        $this->bodyClasses = "home bege internalTips";
+    }
+
+    public function faq($vars){
+
+        $criteria = new FuriousSelectCriteria();
+
+        if($_POST){
+            $busca = addslashes($_POST['releaseSearch']);
+            $criteria->addComplexFilter("`cnt_conteudo`.`CNT_TIT`", "%$busca%", FuriousExpressionsDB::LIKE, "`cnt_conteudo`.`CNT_TXT`", "%$busca%", FuriousExpressionsDB::LIKE, FuriousExpressionsDB::SQL_OR);
+
+        }
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 8, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+
+        $this->conteudo = $conteudo;
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{FAQ}"
+            ),
+        ),
+            "IMAGE" => APP_JS_PREFIX ."images/_imgMedia.jpg",
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+
+
+
+        $this->bodyClasses = "home red questions";
+    }
+
+
+    public function imprensa($vars = null)
+    {
+
+        $this->bodyClasses = "home red imprensa";
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        if (!empty($_POST)) {
+
+            $releaseSearch = $_POST['releaseSearch'];
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$releaseSearch%", FuriousExpressionsDB::LIKE);
+
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "NT", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`", 32, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+        //32 EH O ID DA CATEGORIA DE IMPRENSA
+
+        //$noticias = ConteudoModel::doSelect($criteria);
+        //$this->noticias = $noticias;
+
+        $this->doPagination('ConteudoModel', 'noticias', $criteria, $vars, 10);
+
+    }
+
+    public function releases($vars = null)
+    {
+
+        $this->bodyClasses = "home red imprensa";
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        if (!empty($_POST)) {
+
+            $releaseSearch = $_POST['releaseSearch'];
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$releaseSearch%", FuriousExpressionsDB::LIKE);
+
+        }
+        $this->heading = array("BREADCRUMB" => array(
+          "LINKS" => array(
+            '/a-piracanjuba/quem-somos' => "{A_Piracanjuba}",
+            $vars[0][0] => "Releases"
+          ),
+        ),
+        "IMAGE" => APP_JS_PREFIX . "images/_imgMedia.jpg",
+        "TXT" => "{SLOGAN_RELEASE}"
+        );
+        $this->pageTitle = "Releases";
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "NT", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`", 35, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $this->doPagination('ConteudoModel', 'releases', $criteria, $vars, 10);
+
+    }
+
+    public function piracanjubaNaMidia($vars = null)
+    {
+
+        $this->bodyClasses = "home red imprensa";
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        if (!empty($_POST)) {
+
+            $releaseSearch = $_POST['releaseSearch'];
+            $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$releaseSearch%", FuriousExpressionsDB::LIKE);
+
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "NT", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`", 59, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $this->doPagination('ConteudoModel', 'releases', $criteria, $vars, 10);
+
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '/a-piracanjuba/quem-somos' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Piracanjuba_na_Midia}"
+            ),
+        ),
+            "IMAGE" => APP_JS_PREFIX . "images/_imgMedia.jpg",
+            "TXT" => "{SLOGAN_RELEASE}"
+        );
+        $this->pageTitle = "{Piracanjuba_na_Midia}";
+
+
+    }
+
+
+
+    public function lei12669(){
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 9, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo;
+
+        //--------------------------------
+        // Filters
+        //
+        $filters = array(
+          "years" => "`cnt_destaques`.`DTQ_LTX`",
+          "months" => "`cnt_destaques`.`DTQ_LN2`"
+        );
+
+
+        foreach($filters as $outVar => $group){
+          $criteria = new FuriousSelectCriteria();
+
+          $criteria->add("`cnt_destaques`.`DTQ_TIP`", "ple", FuriousExpressionsDB::EQUAL);
+          $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+          //$criteria->add($group, "", FuriousExpressionsDB::NOT_EQUAL);
+          $criteria->addGroupBy($group);
+          $itens = DestaquesModel::doSelect($criteria);
+          $this->$outVar = $itens;
+        }
+        ///
+
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "ple", FuriousExpressionsDB::EQUAL);
+        if(!empty($_POST['year'])){
+            $criteria->add("`cnt_destaques`.`DTQ_LTX`", addslashes($_POST['year']), FuriousExpressionsDB::EQUAL);
+        }
+        if(!empty($_POST['month'])){
+            $criteria->add("`cnt_destaques`.`DTQ_LN2`", addslashes($_POST['month']), FuriousExpressionsDB::EQUAL);
+        }
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $itens = DestaquesModel::doSelect($criteria);
+        $this->itens = $itens;
+
+        //-------------------------------------
+        $this->arrayTables = array(
+          "pbp" => "proteina",
+          "pae" => "adicional_escala",
+          "pbc" => "contagem_bacteriana",
+          "pba" => "adicional_distancia",
+          "pbt" => "taxa_frio",
+          "pbg" => "gordura",
+          "pc2" => "contagem_celulas"
+        );
+        foreach($this->arrayTables as $key => $outVar){
+          $criteria = new FuriousSelectCriteria();
+          $criteria->add("`cnt_destaques`.`DTQ_TIP`", $key, FuriousExpressionsDB::EQUAL);
+          $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+          $criteria->add("`cnt_destaques`.`DTQ_FIM`", date("Y-m-d H:i:s"), FuriousExpressionsDB::GREATER_EQUAL);
+          $this->$outVar = DestaquesModel::doSelect($criteria);;
+        }
+
+
+        $this->bodyClasses = "home green purchase law";
+    }
+
+    public function ondeEncontrar($vars)
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+
+        $this->heading = array("BREADCRUMB" => array("LINKS" => array('/ondeEncontrar' => "{WHERE_TO_FIND}")));
+        $this->pageTitle = "{WHERE_TO_FIND}";
+
+        if (!empty($_REQUEST)) {
+
+
+            $produto = $_REQUEST['produto'];
+            $cidade = $_REQUEST['cidade'];
+            $estado = $_REQUEST['estado'];
+
+            if (!empty($produto)) {
+
+                $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos` AS categoria_rep", "`categoria_rep`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+                $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_conteudo` AS prod", "`prod`.`CNT_TIP`", "'PROD'");
+                $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos` AS categoria_prod", "`categoria_prod`.`CCL_CNT`", "`prod`.`CNT_ID`");
+
+                $criteria->add("`prod`.`CNT_TIT`", "%$produto%", FuriousExpressionsDB::LIKE);
+                $criteria->add("`prod`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+                $criteria->add("`prod`.`CNT_ID`", "", FuriousExpressionsDB::IS_NOT_NULL);
+
+                $criteria->add("`categoria_rep`.`CCL_CNT`", "", FuriousExpressionsDB::IS_NOT_NULL);
+                $criteria->add("`categoria_rep`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+                $criteria->add("`categoria_prod`.`CCL_CNT`", "", FuriousExpressionsDB::IS_NOT_NULL);
+                $criteria->add("`categoria_prod`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+            }
+
+            if (!empty($cidade)) {
+                $criteria->add("`cnt_conteudo`.`CNT_RDT`", "$cidade", FuriousExpressionsDB::LIKE);
+            }
+
+            if (!empty($estado)) {
+
+                $criteriaEstado = new FuriousSelectCriteria();
+                $criteriaEstado->addComplexFilter("`estado`.`sigla`", "%$estado%", FuriousExpressionsDB::LIKE, "`estado`.`nome`", "$estado%", FuriousExpressionsDB::LIKE, FuriousExpressionsDB::SQL_OR);
+
+                $estado = EstadoModel::doSelect($criteriaEstado);
+
+                if (!empty($estado[0])) {
+                    $estado_id = $estado[0]->id;
+                } else {
+                    $estado_id = 0;
+                }
+                $criteria->add("`cnt_conteudo`.`CNT_CKY`", $estado_id, FuriousExpressionsDB::EQUAL);
+
+            }
+        }
+
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`", "REP", FuriousExpressionsDB::EQUAL);
+
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $criteria->addGroupBy("`cnt_conteudo`.`CNT_ID`");
+
+        $this->doPagination('ConteudoModel', 'representantes', $criteria, $vars);
+
+        $this->bodyClasses = "home red onde";
+    }
+
+
+    public function piracanjubaProCampo(){
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 3, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo;
+
+
+        $this->bodyClasses = "home green purchase";
+
+    }
+
+
+    public function produtos($vars){
+
+        $this->heading = array("BREADCRUMB" => array(
+          "LINKS" => array("/produtos" => "{Products}")),
+          "IMAGE" => "",
+          "SHOW_IMAGE" => false
+        );
+        $this->pageTitle = "{Products}";
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_categorias`.`CAT_COR`", "prod", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias`.`CAT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias`.`CAT_ID`", 34, FuriousExpressionsDB::NOT_EQUAL);
+        $criteria->addAscendingOrder("`cnt_categorias`.`CAT_NOM`");
+
+        $categorias = CategoriasModel::doSelect($criteria);
+
+        $produto = array();
+        foreach($categorias as $categoria){
+
+
+            $criteria = new FuriousSelectCriteria();
+            $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.CCL_CNT", "`cnt_conteudo`.CNT_ID");
+            $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_arquivos_conteudo`", "`cnt_arquivos_conteudo`.ARC_CID", "`cnt_conteudo`.CNT_ID");
+            $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`",  $categoria->CAT_ID, FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_arquivos_conteudo`.`ARC_CTP`",  "THB_CNT"  , FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_arquivos_conteudo`.`ARC_STS`",  "1"  , FuriousExpressionsDB::EQUAL);
+            //$criteria->add("`cnt_conteudo`.`CNT_ID`",  $cat[0]->CCL_CNT, FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_conteudo`.`CNT_STS`",  1, FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_conteudo`.`CNT_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+            $prod = ConteudoModel::doSelect($criteria);
+
+            $produto[$categoria->CAT_ID] = $prod[0];
+
+        }
+
+        $this->produto = $produto;
+        $this->categorias = $categorias;
+
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Produtos}"
+            ),
+        ),
+            //"IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+
+        $this->pageTitle = "{Produtos}";
+
+
+        $this->bodyClasses = "home red product";
+
+    }
+
+    public function produtosInterna($vars){
+
+
+
+        $produto_id = $vars['VARS']['ID'];
+
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_ID`",  $produto_id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`",  1, FuriousExpressionsDB::EQUAL);
+        $produto = ConteudoModel::doSelect($criteria);
+
+        $this->produto =$produto[0];
+        //------------------------------------------------------
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addField2("case `cnt_categorias`.`CAT_NOM`  when 'Zero Lactose' then 3  when 'Pirakids School' then 2 when 'Pirakids' then 1 else 0 end as ord");
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CNT`",  $produto_id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias`", "`cnt_categorias_conteudos`.`CCL_CAT`", "`cnt_categorias`.`CAT_ID`");
+        $criteria->addDescendingOrder("ord");
+        $cat = CategoriaconteudoModel::doSelect($criteria);
+
+        //------------------------------------------------------
+
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_categorias`.`CAT_ID`",  $cat[0]->CCL_CAT, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias`.`CAT_STS`",  1, FuriousExpressionsDB::EQUAL);
+        $categoria = CategoriasModel::doSelect($criteria);
+
+        $this->categoria = $categoria[0];
+
+
+        //OUTROS PRODUTOS
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        $criteria->add("`cnt_conteudo`.`CNT_DTA`", $this->produto->CNT_DTA, FuriousExpressionsDB::GREATER_THAN);
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_ID`",  $produto_id, FuriousExpressionsDB::NOT_EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`",  $cat[0]->CCL_CAT, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->addAscendingOrder("`cnt_conteudo`.`CNT_DTA`");
+        $criteria->setLimit(1);
+
+        $prodMaior = ConteudoModel::doSelect($criteria);
+
+        $this->prodMaior = $prodMaior[0];
+
+
+        //---------------------------
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+        $criteria->add("`cnt_conteudo`.`CNT_DTA`", $this->produto->CNT_DTA, FuriousExpressionsDB::MINOR_THAN);
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_ID`",  $produto_id, FuriousExpressionsDB::NOT_EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_CAT`",  $cat[0]->CCL_CAT, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_TIP`",  "PROD", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_categorias_conteudos`.`CCL_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+        $criteria->addDescendingOrder("`cnt_conteudo`.`CNT_DTA`");
+        $criteria->setLimit(1);
+
+        $prodMenor = ConteudoModel::doSelect($criteria);
+
+        $this->prodMenor = $prodMenor[0];
+
+
+
+        //------------------------------------------------------
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_TIP`",  "REC", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`",  1, FuriousExpressionsDB::EQUAL);
+        $receitas = ConteudoModel::doSelect($criteria);
+
+        $this->receita = $receitas[0];
+
+        //------------------------------------------------------
+
+
+        //PROXIMO PRODUTO
+
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`cnt_conteudo`.`CNT_ID`",  $produto_id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`",  1, FuriousExpressionsDB::EQUAL);
+        $produto = ConteudoModel::doSelect($criteria);
+
+        $this->produto =$produto[0];
+
+
+        $this->cat0 = $categoria[0];
+
+        if($categoria[0]->CAT_NOM == "Pirakids"){
+
+            $this->bodyClasses = "home brown internalProduct";
+            $this->setTemplate("pirakids");
+        }elseif($categoria[0]->CAT_NOM == "Zero Lactose"){
+            $this->bodyClasses = "home orange internalProduct zero";
+            $this->setTemplate("zeroLactose");
+        }elseif($categoria[0]->CAT_NOM == "Pirakids School"){
+            $this->bodyClasses = "home blue internalProduct";
+            $this->setTemplate("pirakidsSchool");
+        }else{
+            $this->bodyClasses = "home red internalProduct";
+        }
+
+        $this->pageTitle = "{Produtos}";
+
+        /*if($categoria = pirakids){
+
+            $this->bodyClasses = "home brown internalProduct";
+        }*/
+    }
+
+    public function produtosInternaTabela($vars = null){
+
+        $this->produtosInterna($vars);
+        $produto_id = $this->produto->CNT_ID;
+        $criteria = new FuriousSelectCriteria();
+        $criteria->add("`tabela_nutricional`.`produto_id`",  $produto_id, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`tabela_nutricional`.`status`", 1, FuriousExpressionsDB::EQUAL);
+        $tabela = TabelaNutricionalModel::doSelect($criteria);
+
+
+        $this->tabela = $tabela;
+
+        $categoria[0] = $this->cat0;
+
+        $this->setTemplate("produtosInternaTabela");
+
+    }
+
+    public function qualidadeDoLeite($vars = null){
+
+        $criteria = new FuriousSelectCriteria();
+        if(!empty($vars['VARS']) && !empty($vars['VARS']['ID'])){
+            $criteria->add("`cnt_conteudo`.`CNT_ID`", $vars['VARS']['ID'], FuriousExpressionsDB::EQUAL);
+        } else {
+            $criteria->add("`cnt_conteudo`.`CNT_IPR`", 16, FuriousExpressionsDB::EQUAL);
+        }
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        if(!empty($conteudo[0])){
+          $this->conteudo = $conteudo[0];
+
+          $this->heading = array("BREADCRUMB" => array("LINKS" => array($this->conteudo->getUrl() => $this->conteudo->getCNTTIT())));
+          $this->pageTitle = $this->conteudo->getCNTTIT();
+
+          $this->bodyClasses = "home green purchase";
+        } else {
+          $this->Error404();
+        }
+
+
+    }
+
+    public function equipeDeCompraLeite($vars){
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 16, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo[0];
+
+
+
+        $this->bodyClasses = "home green purchase";
+
+    }
+
+    public function pagamentoDeLeite($vars){
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 16, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudo = $conteudo[0];
+
+
+
+        $this->bodyClasses = "home green purchase";
+
+    }
+
+
+
+
+    public function representantes($vars = null){
+
+
+      $this->heading = array("BREADCRUMB" => array("LINKS" => array("/a-piracanjuba" => "{A_Piracanjuba}", $vars[0][0] => "{Representantes}"), "TXT" => "{MSG_REPRESENTANTES}"));
+      $this->pageTitle = "{Representantes}";
+
+
+      $criteria = new FuriousSelectCriteria();
+
+      $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`cnt_categorias_conteudos`", "`cnt_categorias_conteudos`.`CCL_CNT`", "`cnt_conteudo`.`CNT_ID`");
+      if (!empty($_GET['releaseSearch'])) {
+
+          $releaseSearch = addslashes($_GET['releaseSearch']);
+          $criteria->add("`cnt_conteudo`.`CNT_TIT`", "%$releaseSearch%", FuriousExpressionsDB::LIKE);
+
+      }
+      $this->ufs = array(
+        "AC" => "Acre",
+        "AL" => "Alagoas",
+        "AP" => "Amapá",
+        "AM" => "Amazonas",
+        "BA" => "Bahia",
+        "CE" => "Ceará",
+        "DF" => "Distrito Federal",
+        "ES" => "Espírito Santo",
+        "GO" => "Goiás",
+        "MA" => "Maranhão",
+        "MT" => "Mato Grosso",
+        "MS" => "Mato Grosso do Sul",
+        "MG" => "Minas Gerais",
+        "PA" => "Pará",
+        "PB" => "Paraíba",
+        "PR" => "Paraná",
+        "PE" => "Pernambuco",
+        "PI" => "Piauí",
+        "RJ" => "Rio de Janeiro",
+        "RN" => "Rio Grande do Norte",
+        "RS" => "Rio Grande do Sul",
+        "RR" => "Rondônia",
+        "RO" => "Roraima",
+        "SC" => "Santa Catarina",
+        "SP" => "São Paulo",
+        "SE" => "Sergipe",
+        "TO" => "Tocantins"
+      );
+      $ufsIndex = array_keys($this->ufs);
+      $this->ufsIndex = $ufsIndex;
+      $this->currentState = "Brasil";
+
+      $this->imgUF = array_search($ufsIndex[rand(0, (count($this->ufs)-1))], $this->ufs);
+
+      if (!empty($_GET['uf']) && !empty($this->ufs[strtoupper($_GET['uf'])])) {
+          $uf = array_search(strtoupper($_GET['uf']), $ufsIndex);
+          if($uf){
+            $this->imgUF = $uf;
+            $this->currentState = $this->ufs[strtoupper($_GET['uf'])];
+          }
+          $criteria->add("`cnt_conteudo`.`CNT_CKY`", $uf, FuriousExpressionsDB::EQUAL);
+
+
+      }
+
+      $criteria->add("`cnt_conteudo`.`CNT_TIP`", "REP", FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+      $this->releases = ConteudoModel::doSelect($criteria);
+
+
+      $criteria = new FuriousSelectCriteria();
+      $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto`", "`w11_produto`.`PDT_ID`", "`cnt_destaques`.`DTQ_EDT`");
+      $criteria->addJoin(FuriousExpressionsDB::LEFT_JOIN, "`w11_produto_menu`", "`w11_produto_menu`.`MNU_TIP`", "CONCAT(`cnt_destaques`.`DTQ_TIP`, \"/index\")");
+      $criteria->add("`w11_produto`.`PDT_URL`", $vars[0][0], FuriousExpressionsDB::EQUAL);
+      $criteria->add("`w11_produto`.`PDT_OMN`", APP_DEFAULT_EDITORIAL, FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_destaques`.`DTQ_STS`", '1', FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_destaques`.`DTQ_TIP`", $this->imgUF, FuriousExpressionsDB::EQUAL);
+      $criteria->setLimit(1);
+
+
+      $this->img = DestaquesModel::doSelect($criteria);
+
+      $this->bodyClasses = "home red representantive imprensa";
+    }
+
+    public function unidadeFabris($vars){
+
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_conteudo`.`CNT_IPR`", 17, FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $conteudo = ConteudoModel::doSelect($criteria);
+        $this->conteudos = $conteudo;
+
+        $this->heading = array("BREADCRUMB" => array(
+            "LINKS" => array(
+                '#' => "{A_Piracanjuba}",
+                $vars[0][0] => "{Unidades}"
+            ),
+        ),
+            //"IMAGE" => $conteudo[0]->getDTQFTO()->getFile()->getPath2(),
+            //"TXT" => "{SLOGAN_RELEASE}"
+        );
+
+        $this->pageTitle = "{Unidade_Fabris}";
+
+        $this->bodyClasses = "home red unit";
+    }
+
+    //----------------------------------------------------------------------
+
+    public function ContatoProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "ctt", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+    public function ultimas($vars = NULL)
+    {
+        $this->initProdutoJson($vars);
+        $itensPerPage = 10;
+        $this->bodyId = "interna";
+
+        $this->jsonCat = json_decode(file_get_contents(APP_JSON_PATH . "SITE_1.json"), true);
+
+        $this->doPaginationJSON(count($this->jsonCat["news"]), $vars, $itensPerPage);
+
+    }
+
+
+
+
+
+    public function galerias($vars = NULL)
+    {
+        $this->initProdutoJson($vars);
+        $itensPerPage = 10;
+        $this->bodyId = "interna";
+
+        $this->jsonCat = json_decode(file_get_contents(APP_JSON_PATH . "SITE_1_GA.json"), true);
+
+        $this->doPaginationJSON(count($this->jsonCat["news"]), $vars, $itensPerPage);
+
+    }
+
+    public function OqueeoProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "oqp", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+    public function OqueeoProCampo2()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "oq2", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield the-profield";
+
+
+    }
+
+
+    public function PerguntasFrequentesProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "pgt", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield questions";
+
+
+    }
+
+
+    public function EquipeProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "eqp", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+
+
+
+    public function QualidadeDoLeitoProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "qdl", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+    public function CalendarioProCampo()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "cld", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+    public function proCampoParceiros()
+    {
+
+        $criteria = new FuriousSelectCriteria();
+
+        $criteria->add("`cnt_destaques`.`DTQ_TIP`", "prc", FuriousExpressionsDB::EQUAL);
+        $criteria->add("`cnt_destaques`.`DTQ_STS`", 1, FuriousExpressionsDB::EQUAL);
+
+        $destaques = DestaquesModel::doSelect($criteria);
+        $this->destaques = $destaques;
+
+        $this->bodyClasses = "home red profield";
+
+
+    }
+
+
+
+
+
+
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public function editoria($vars = NULL)
+    {
+
+        $this->initProdutoJson($vars);
+        //$this->template = (!empty($vars['VARS']['TEMPLATE']))?$vars['VARS']['TEMPLATE']:FALSE;
+        if (!empty($vars['VARS']['TEMPLATE'])) {
+            if ($vars['VARS']['TEMPLATE'] == "albuns") {
+                $vars['VARS']['TYPE'] = "GA";
+            }
+            if ($vars['VARS']['TEMPLATE'] == "videos") {
+                $vars['VARS']['TYPE'] = "VD";
+            }
+        }
+
+        $this->loadCategoryJson($vars);
+
+        $this->bodyId = "interna";
+        //sobrescrever o pageTitle da página [passar para o pagetTitle de noticias e não de produto]
+        //ex: $this->pageTitle = $this->pagetitleNoticia;
+
+        if ((!empty($this->template)) && ($this->template == "cidadezinhaalerta" || $this->template == "historiasquadrinhos")) {
+
+        } else {
+            $this->totalItens = count($this->jsonCat["news"]);
+
+            $this->currentPage = (!empty($_GET['page'])) ? ((int)$_GET['page']) : 0;
+
+            if (!empty($this->template)) {
+                //var_dump($this->template);
+                switch ($this->template) {
+                    case ($this->template == "principaiscasos"):
+                        $itensPerPage = 3;
+                        break;
+                    case ($this->template == "bastidores"):
+                        $itensPerPage = 9;
+                        break;
+                    case ($this->template == "crimedecodificado"):
+                        $itensPerPage = 6;
+                        break;
+                    case ($this->template == "porumdia"):
+                        $itensPerPage = 4;
+                        break;
+                    case ($this->template == "marcelorezendenarra"):
+                        $itensPerPage = 7;
+                        break;
+                    case ($this->template == "blog"):
+                        $itensPerPage = 4;
+                        break;
+                    default:
+                        $itensPerPage = 12;
+                }
+            } else {
+                $itensPerPage = 10;
+            }
+
+            $this->doPaginationJSON(count($this->jsonCat["news"]), $vars, $itensPerPage);
+
+        }
+
+        if ((!empty($this->template)) && ($this->template == "marcelorezendenarra")) {
+
+            $this->initConteudoJson(array("VARS" => array("ID" => 67)));
+
+            $this->doPaginationJSON(count($this->content['comments']), $vars, $itensPerPage);
+            //var_dump($vars);
+            if (Document::hasFile(APP_JSON_PATH . "SITE_" . APP_DEFAULT_EDITORIAL . "_NT.json")) {
+                $this->news = json_decode(file_get_contents(APP_JSON_PATH . "SITE_" . APP_DEFAULT_EDITORIAL . "_NT.json"), true);
+            }
+
+            if (!empty($_POST)) {
+                $nome = $_POST['nome'];
+                $email = $_POST['email'];
+                $telefone = $_POST['telefone'];
+                $estado = $_POST['estado'];
+                $upload;
+
+                //echo ($nome." - ".$email." - ".$telefone." - ".$estado." - ".$upload);
+
+                $coment = new Mensagens();
+                $coment->MSG_NOM = $nome;
+                $coment->MSG_CNT = 67;
+                $coment->MSG_IPR = 1;
+                $coment->MSG_EMA = $email;
+                $coment->MSG_TEL = $telefone;
+                $coment->MSG_TIT = $estado;
+
+                if (!empty($_FILES['upload'])) {
+                    if (!is_array($_FILES['upload']['error'])) {
+                        if ($_FILES['upload']['error'] == UPLOAD_ERR_OK) {
+
+                            $name = Slugfy($_FILES['upload']['name']);
+                            $dir = Document::renderYMDStructure("uploads/users/", time());
+                            if (!empty($dir)) {
+
+                                $path = $dir . (str_replace(" ", "_", $_FILES['upload']['name']));
+
+                                if (!Document::hasFile($path)) {
+                                    if (Document::moveUploadedFile($_FILES['upload']["tmp_name"], $path)) {
+                                        $arquivo = new Arquivo();
+                                        $arquivo->ARQ_EXT = Document::getFileExtension($_FILES['upload']["name"]);
+                                        $arquivo->ARQ_DIR = "uploads/users/";
+                                        $arquivo->ARQ_NOM = str_replace(" ", "_", $_FILES['upload']['name']);
+                                        $arquivo->ARQ_DTA = date("Y-m-d H:i:s");
+                                        $arquivo->ARQ_STS = 1;
+                                        $save = $arquivo->save();
+                                        if ($save == true) {
+                                            $upload = $arquivo->getARQID();
+                                            //var_dump($upload);
+                                        }
+                                    }
+                                } else {
+                                    $dirPath = "uploads/users/" . (date("Y")) . "/" . (date("m")) . "/" . (date("d")) . "/";
+                                    $fileName = Document::generateFilePrefix(str_replace(" ", "_", $_FILES['upload']['name']), $dirPath);
+                                    if ($fileName !== false) {
+                                        if (Document::moveUploadedFile($_FILES["upload"]["tmp_name"], sprintf("%s%s", $dirPath, $fileName))) {
+                                            $arquivo = new Arquivo();
+                                            $arquivo->ARQ_EXT = Document::getFileExtension($fileName);
+                                            $arquivo->ARQ_DIR = "uploads/users/";
+                                            $arquivo->ARQ_NOM = $fileName;
+                                            $arquivo->ARQ_DTA = date("Y-m-d H:i:s");
+                                            $arquivo->ARQ_STS = 1;
+                                            $save = $arquivo->save();
+
+                                            if ($save == true) {
+                                                $upload = $arquivo->getARQID();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        foreach ($_FILES["images"]["errors"] as $key => $error) {
+                            if ($error == UPLOAD_ERR_OK) {
+
+                                $name = $_FILES['images']['name'][$key];
+                                $dir = Document::renderYMDStructure("uploads/users/", time());
+
+                                if (!empty($dir)) {
+                                    $path = $dir . (str_replace(" ", "_", $_FILES['upload']['name']));
+
+                                    if (!Document::hasFile($path)) {
+                                        if (Document::moveUploadedFile($_FILES["images"]["tmp_name"][$key], $path)) {
+                                            $arquivo = new Arquivo();
+                                            $arquivo->ARQ_EXT = Document::getFileExtension($_FILES["images"]["name"][$key]);
+                                            $arquivo->ARQ_NOM = $_FILES['images']['name'][$key];
+                                            $arquivo->ARQ_DIR = "uploads/users/";
+                                            $arquivo->ARQ_DTA = date("Y-m-d H:i:s");
+                                            $arquivo->ARQ_STS = 1;
+                                            $save = $arquivo->save();
+                                            if ($save) {
+                                                $upload = $arquivo->getARQID();
+                                            }
+                                        }
+                                    } else {
+                                        $dirPath = "uploads/" . (date("Y")) . "/" . (date("m")) . "/" . (date("d")) . "/";
+                                        $fileName = Document::generateFilePrefix($_FILES['images']['name'][$key], $dirPath);
+                                        if ($fileName !== false) {
+                                            if (Document::moveUploadedFile($_FILES["images"]["tmp_name"][$key], sprintf("%s%s", $dirPath, $fileName))) {
+                                                $arquivo = new Arquivo();
+                                                $arquivo->ARQ_EXT = Document::getFileExtension($fileName);
+                                                $arquivo->ARQ_NOM = $fileName;
+                                                $arquivo->ARQ_DIR = "uploads/users/";
+                                                $arquivo->ARQ_DTA = date("Y-m-d H:i:s");
+                                                $arquivo->ARQ_STS = 1;
+                                                $save = $arquivo->save();
+                                                if ($save) {
+                                                    $upload = $arquivo->getARQID();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    echo("É necessário o preenchimento do campo upload.");
+                }
+
+                $coment->MSG_TXT = $upload;
+                $coment->MSG_STS = 0;
+                $coment->save();
+                if ($coment->save() == true) {
+                    $this->Success = true;
+                }
+            }
+
+        }
+
+    }
+
+    public function subPorumDia($vars = null)
+    {
+        $this->subeditoria($vars);
+
+        if (!empty($_POST['pordia'])) {
+            $values = $_POST['pordia'];
+            $this->values = $values;
+            $errors = array();
+
+            $obrigatory = array("nome" => "Nome", "cidade" => "Cidade", "embed" => "Embed", "email" => "E-mail");
+            foreach ($obrigatory as $field => $label) {
+                $value = trim($values[$field]);
+                if (empty($value)) {
+                    $errors[] = $label . " não pode ficar vazio.";
+                }
+            }
+            if (empty($values['concordo'])) {
+                $errors[] = "Você deve aceitar os termos";
+            }
+            if (!empty($values['email']) && !filter_var($values['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "E-mail inválido";
+            }
+            if (!empty($values['embed']) && !preg_match("/youtube\.com\/watch\?v\=/i", $values['embed'])) {
+                $errors[] = "Url do youtube inválida";
+            }
+
+            if (count($errors) > 0) {
+                $this->errors = $errors;
+            } else {
+                $coment = new Mensagens();
+                $coment->MSG_NOM = addslashes(utf8_decode($values['nome']));
+                $coment->MSG_CNT = 68;
+                $coment->MSG_IPR = 1;
+                $coment->MSG_EMA = addslashes(utf8_decode($values['email']));;
+                $coment->MSG_TIT = addslashes(utf8_decode($values['cidade']));;
+                $coment->MSG_TXT = addslashes(utf8_decode($values['embed']));;
+                $coment->MSG_STS = 0;
+                if ($coment->save()) {
+                    $this->success = true;
+                }
+            }
+        }
+    }
+
+    public function subeditoria($vars = NULL)
+    {
+        $this->template = (!empty($vars['VARS']['TEMPLATE'])) ? $vars['VARS']['TEMPLATE'] : "subeditoria";
+        $this->setTemplate($this->template);
+        $this->editoria($vars);
+        $this->bodyId = "interna";
+    }
+
+    public function busca($vars = NULL)
+    {
+        $this->bodyId = "interna";
+
+        if (!empty($_GET['q'])) {
+            $q = strip_tags(addslashes($_GET['q']));
+
+            $criteria = new FuriousSelectCriteria();
+            $criteria->addComplexFilter('`cnt_conteudo`.`CNT_TIT`', '%' . $q . '%', FuriousExpressionsDB::LIKE, '`cnt_conteudo`.`CNT_TXT`', '%' . $q . '%', FuriousExpressionsDB::LIKE, FuriousExpressionsDB::SQL_OR);
+            $criteria->add("`cnt_conteudo`.`CNT_STS`", '1', FuriousExpressionsDB::EQUAL);
+            $criteria->add("`cnt_conteudo`.`CNT_DTA`", date('Y-m-d H:i:s'), FuriousExpressionsDB::MINOR_THAN);
+            $criteria->add("`cnt_conteudo`.`CNT_TIP`", "ST", FuriousExpressionsDB::NOT_EQUAL);
+
+            $this->doPagination('ConteudoModel', 'content', $criteria, $vars, 6);
+        }
+    }
+    public function internaAnos($vars = null)
+    {
+      $criteria = new FuriousSelectCriteria();
+      $criteria->add("`cnt_conteudo`.`CNT_ID`", addslashes($vars['VARS']['ID']), FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_conteudo`.`CNT_STS`", 1, FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_conteudo`.`CNT_TIP`", 'AN', FuriousExpressionsDB::EQUAL);
+      $criteria->add("`cnt_conteudo`.`CNT_DTA`", date("Y-m-d H:i:s"), FuriousExpressionsDB::MINOR_EQUAL);
+      $criteria->setLimit(1);
+      $this->content = ConteudoModel::doSelect($criteria);
+
+      if(empty($this->content[0])){
+        $this->Error404();
+      } else {
+        $this->content = $this->content[0];
+      }
+    }
+}
+
+?>
+>>>>>>> fe37d1cd0c0ba8553a370ae82de222c36bd80688

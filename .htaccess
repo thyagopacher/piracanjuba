@@ -1,0 +1,20 @@
+AuthUserFile /home/containerdigital2/.htpasswd
+AuthGroupFile /dev/null
+AuthName Restrito
+AuthType Basic
+<Limit GET POST>
+	require user piracanjuba
+</Limit>
+
+RewriteEngine on
+#RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^adm/(.*)$ ./backend.php [QSA,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^es/(.*)$ ./index-es.php [QSA,L]
+RewriteRule ^us/(.*)$ ./index-us.php [QSA,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ ./index.php [QSA,L]
